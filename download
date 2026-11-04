@@ -1,0 +1,13 @@
+# Credenciales locales
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Entornos y archivos temporales
+env/
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
