@@ -7,6 +7,7 @@ from basic_agent_basic_memory_intermediate_tools import (
     get_client,
     process_response
 )
+from history_ui import prepare_history, history_sidebar, save_chat
 
 
 # Configuración de la página
@@ -379,7 +380,10 @@ def mensajes_iniciales():
     ]
 
 
-# Memoria del chat
+# Activar acceso e historial persistente cuando Supabase está configurado.
+history = prepare_history(mensajes_iniciales)
+
+# Memoria de la conversación abierta; el historial permanente vive en Supabase.
 if "messages" not in st.session_state:
     st.session_state["messages"] = mensajes_iniciales()
 
@@ -398,9 +402,7 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    if st.button("🗑️ Limpiar conversación"):
-        st.session_state["messages"] = mensajes_iniciales()
-        st.rerun()
+    history_sidebar(history, mensajes_iniciales)
 
     st.markdown("### Herramientas disponibles")
 
@@ -492,7 +494,8 @@ for mensaje in st.session_state["messages"]:
 
 # Entrada del usuario
 pregunta = st.chat_input(
-    "Escribe una pregunta para Xecoagent..."
+    "Escribe una pregunta para Xecoagent...",
+    disabled=st.session_state.get("xeco_pending_save", False)
 )
 
 if pregunta:
@@ -561,3 +564,7 @@ if pregunta:
             "mostrar_grafica": solicitar_grafica
         }
     )
+
+    if history is not None:
+        save_chat(history)
+        st.rerun()
